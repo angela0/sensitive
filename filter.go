@@ -42,6 +42,10 @@ func (filter *Filter) AddWord(words ...string) {
 	filter.trie.Add(words...)
 }
 
+func (filter *Filter) RemoveWord(words ...string) {
+	filter.trie.Remove(words...)
+}
+
 // Filter 过滤敏感词
 func (filter *Filter) Filter(text string) string {
 	return filter.trie.Filter(text)

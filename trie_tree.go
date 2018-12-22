@@ -44,6 +44,23 @@ func (tree *Trie) add(word string) {
 		}
 	}
 }
+func (tree *Trie) Remove(words ...string) {
+	for _, word := range words {
+		tree.remove(word)
+	}
+}
+func (tree *Trie) remove(word string) {
+	runes, current := []rune(word), tree.Root
+	for position := 0; position < len(runes); position++ {
+		r := runes[position]
+		if next, ok := current.Children[r]; ok {
+			current = next
+			continue
+		}
+		return
+	}
+	current.isPathEnd = false
+}
 
 // Replace 词语替换
 func (tree *Trie) Replace(text string, character rune) string {
