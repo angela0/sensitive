@@ -171,6 +171,7 @@ func (tree *Trie) FindIn(text string) (bool, string) {
 // FindAll 找有所有包含在词库中的词
 func (tree *Trie) FindAll(text string) []string {
 	var matches []string
+	var set = make(map[string]struct{})
 	var (
 		parent  = tree.Root
 		current *Node
@@ -191,7 +192,7 @@ func (tree *Trie) FindAll(text string) []string {
 		}
 
 		if current.IsPathEnd() && left <= position {
-			matches = append(matches, string(runes[left:position+1]))
+			set[string(runes[left:position+1])] = struct{}{}
 
 			if position == length-1 {
 				parent = tree.Root
@@ -204,22 +205,10 @@ func (tree *Trie) FindAll(text string) []string {
 		parent = current
 	}
 
-	if count := len(matches); count > 0 {
-		set := make(map[string]struct{})
-		for i := range matches {
-			_, ok := set[matches[i]]
-			if !ok {
-				set[matches[i]] = struct{}{}
-				continue
-			}
-			count--
-			copy(matches[i:], matches[i+1:])
-			i--
-		}
-		return matches[:count]
+	for k, _ := range set {
+		matches = append(matches, k)
 	}
-
-	return nil
+	return matches
 }
 
 // NewNode 新建子节点
