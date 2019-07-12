@@ -202,6 +202,13 @@ func (tree *Trie) FindAll(text string) []string {
 			}
 		}
 
+		if (position == length-1 && left != length-1){
+			parent = tree.Root
+			position = left
+			left++
+			continue
+		}
+
 		parent = current
 	}
 
