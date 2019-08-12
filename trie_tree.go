@@ -131,24 +131,20 @@ func (tree *Trie) Filter(text string) string {
 // Validate 验证字符串是否合法，如不合法则返回false和检测到
 // 的第一个敏感词
 func (tree *Trie) Validate(text string) (bool, string) {
-	const (
-		Empty = ""
-	)
 	var (
 		parent  = tree.Root
 		current *Node
 		runes   = []rune(text)
+		length  = len(runes)
 		left    = 0
 		found   bool
 	)
 
-	for position := 0; position < len(runes); position++ {
+	for position := 0; position < length; position++ {
 		current, found = parent.Children[runes[position]]
 
 		if !found {
-			parent = tree.Root
-			position = left
-			left++
+			parent, position, left = tree.Root, left, left+1
 			continue
 		}
 
@@ -156,10 +152,15 @@ func (tree *Trie) Validate(text string) (bool, string) {
 			return false, string(runes[left : position+1])
 		}
 
+		if position == length-1 && left != length-1 {
+			parent, position, left = tree.Root, left, left+1
+			continue
+		}
+
 		parent = current
 	}
 
-	return true, Empty
+	return true, ""
 }
 
 // FindIn 判断text中是否含有词库中的词
@@ -195,17 +196,13 @@ func (tree *Trie) FindAll(text string) []string {
 			set[string(runes[left:position+1])] = struct{}{}
 
 			if position == length-1 {
-				parent = tree.Root
-				position = left
-				left++
+				parent, position, left = tree.Root, left, left+1
 				continue
 			}
 		}
 
-		if (position == length-1 && left != length-1){
-			parent = tree.Root
-			position = left
-			left++
+		if position == length-1 && left != length-1 {
+			parent, position, left = tree.Root, left, left+1
 			continue
 		}
 
