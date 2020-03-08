@@ -215,6 +215,54 @@ func (tree *Trie) FindAll(text string) []string {
 	return matches
 }
 
+func (tree *Trie) FindAllWithPos(text string) map[string][]int {
+	var matches = make(map[string][]int)
+	var (
+		parent  = tree.Root
+		current *Node
+		runes   = []rune(text)
+		length  = len(runes)
+		left    = 0
+		found   bool
+	)
+
+	for position := 0; position < length; position++ {
+		current, found = parent.Children[runes[position]]
+
+		if !found {
+			parent = tree.Root
+			position = left
+			left++
+			continue
+		}
+
+		if current.IsPathEnd() && left <= position {
+
+			var key = string(runes[left : position+1])
+
+			if value, exists := matches[key]; exists {
+				matches[key] = append(value, left)
+			} else {
+				matches[key] = append(make([]int, 0), left)
+			}
+
+			if position == length-1 {
+				parent, position, left = tree.Root, left, left+1
+				continue
+			}
+		}
+
+		if position == length-1 && left != length-1 {
+			parent, position, left = tree.Root, left, left+1
+			continue
+		}
+
+		parent = current
+	}
+
+	return matches
+}
+
 // NewNode 新建子节点
 func NewNode(character rune) *Node {
 	return &Node{
